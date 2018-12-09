@@ -1,4 +1,10 @@
 import java.lang.Math;
+import java.io.FileNotFoundException;
+import java.util.List;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.nio.charset.Charset;
+import java.io.IOException;
 
 public class Evaluador {
 
@@ -42,11 +48,34 @@ public class Evaluador {
 	}
 
 	/**
-	 * Construye un árbol de sintaxis abstracta a partir de una expresión en
-	 * notación polaca reversa.
+	 * Importa un archivo de texto que contiene expresiones.
 	 */
-	public static void buildExprGraphForTheLulz(String reversedPolishExpr) {
+	public static List<String> getExpressionsFrom(String file) {
 
+		try {
+			if (!Utilidades.isValidPath(file)) {
+				throw new FileNotFoundException();
+			}
+		}
+		catch(FileNotFoundException e) {
+			System.out.println(
+				"No fue posible importar el archivo, verifique que el nombre " +
+				"es el correcto"
+			);
+		}
+
+		List<String> lines = null;
+		try {
+			lines = Files.readAllLines(
+				Paths.get(file),
+				Charset.defaultCharset()
+			);
+		}
+		catch(IOException e) {
+			e.printStackTrace();
+		}
+
+		return lines;
 	}
 
 	/**
@@ -64,6 +93,13 @@ public class Evaluador {
 		return 0;
 	}
 
+	/**
+	 * Construye un árbol de sintaxis abstracta a partir de una expresión en
+	 * notación polaca reversa.
+	 */
+	public static void buildExprGraphForTheLulz(String reversedPolishExpr) {
+
+	}
 
 	/**
 	 * Importa un archivo que contiene expresiones y en caso de que estas
@@ -76,7 +112,7 @@ public class Evaluador {
 	 */
 	public static void importAndEval(String file) {
 
-		String[] expressions = getExpressionsFrom(file);
+		List<String> expressions = getExpressionsFrom(file);
 
 		int result;
 		for (String expr : expressions) {
