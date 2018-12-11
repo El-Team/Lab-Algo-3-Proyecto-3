@@ -77,13 +77,13 @@ public class Evaluador {
 
 		return lines;
 	}
-
+	
 	/**
 	 * Aplica el algoritmo shunting-yard a la expresión dada para retornar la
 	 * misma expresión en notación polaca reversa.
 	 */
 	private static String convertToReversedPolish(String expr) {
-		return "";
+		return ShuntingYard.toPostfix(expr);
 	}
 
 	/**
