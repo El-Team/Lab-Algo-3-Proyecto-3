@@ -7,7 +7,7 @@ public class ShuntingYard {
 	
 	private enum Operator {
 
-		ADD(1), SUBTRACT(2), MULTIPLY(3), DIVIDE(4);
+		ADD(1), SUBTRACT(2), MULTIPLY(3), DIVIDE(4), MAX(5), MIN(6), SUM(7);
 		final int precedence;
 
 		Operator(int p) {
@@ -22,6 +22,9 @@ public class ShuntingYard {
 				put("-", Operator.SUBTRACT);
 				put("*", Operator.MULTIPLY);
 				put("/", Operator.DIVIDE);
+				put("M", Operator.MAX);
+				put("N", Operator.MIN);
+				put("S", Operator.SUM);
 			}
 		};
 
@@ -41,18 +44,10 @@ public class ShuntingYard {
 	 * del operador que se encuentra a la cabeza de la pila.
 	 */
 	private static boolean hasLowerOrEqualPrec(String incoming, String stackTop) {
-	    return (
-	    	operators.containsKey(incoming) &&
-	    	operators.get(incoming).precedence <= operators.get(stackTop).precedence
-	    );
-	}
-
-
-	/**
-	 * Detecta si la expresión contiene llamadas a min(), max() y a sum()
-	 */
-	private static boolean hasBuiltInFunctionIn(String expr) {
-		return false;
+		return (
+			operators.containsKey(incoming) &&
+			operators.get(incoming).precedence <= operators.get(stackTop).precedence
+		);
 	}
 
 	/**
@@ -60,71 +55,122 @@ public class ShuntingYard {
 	 * misma expresión en notación polaca reversa.
 	 */
 	public static String toPostfix(String expr) {
+
 		StringBuilder out = new StringBuilder();
 		Stack stack = new Stack();
+		char[] tokens = expr.toCharArray();
+		String token  = "";
 
-		if (hasBuiltInFunctionIn(expr)) {
+		for (int i = 0; i < expr.length(); i++) {
 
-		}
-		else {
-			char[] tokens = expr.toCharArray();
-			String token  = "";
+			token = Character.toString(tokens[i]);
 
-			for (int i = 0; i < expr.length(); i++) {
-
-				token = Character.toString(tokens[i]);
-
-				// If the incoming symbol is a left parenthesis, push it on the
-				// stack.
-				if (token.equals("(")) {
+			// Paréntesis asociativo izquierdo
+			if (token.equals("(")) {
+				stack.push(token);
+			}
+			// Paréntesis asociativo derecho
+			else if (token.equals(")")) {
+				while (!stack.peek().equals("(")) {
+					out.append(stack.pop());
+				}
+				stack.pop();
+			}
+			// Algún operador simple (+, -, *, /)
+			else if (operators.containsKey(token)) {
+				// If the incoming symbol is an operator and the stack is empty
+				//   or contains a left parenthesis on top, push the incoming
+				//   operator onto the stack.
+				if (stack.empty() || stack.peek().equals("(")) {
 					stack.push(token);
 				}
-				// If the incoming symbol is a right parenthesis: discard the
-				// right parenthesis, pop and print the stack symbols until you
-				// see a left parenthesis. Pop the left parenthesis and discard it.
-				else if (token.equals(")")) {
-					while (!stack.peek().equals("(")) {
-						out.append(stack.pop());
-					}
-					stack.pop();
+				// If the incoming symbol is an operator and has either higher
+				//   precedence than the operator on the top of the stack, or
+				//   has the same precedence as the operator on the top of the
+				//   stack and is right associative -- push it on the stack.
+				else if (hasHigherOrEqualPrec(token, (String)stack.peek())) {
+					stack.push(token);
 				}
-				else if (operators.containsKey(token)) {
-					// If the incoming symbol is an operator and the stack is empty
-					//   or contains a left parenthesis on top, push the incoming
-					//   operator onto the stack.
-					if (stack.empty() || stack.peek().equals("(")) {
-						stack.push(token);
-					}
-					// If the incoming symbol is an operator and has either higher
-					//   precedence than the operator on the top of the stack, or
-					//   has the same precedence as the operator on the top of the
-					//   stack and is right associative -- push it on the stack.
-					else if (hasHigherOrEqualPrec(token, (String)stack.peek())) {
-						stack.push(token);
-					}
-					// If the incoming symbol is an operator and has either lower
-					//   precedence than the operator on the top of the stack, or
-					//   has the same precedence as the operator on the top of the
-					//   stack and is left associative -- continue to pop the stack
-					//   until this is not true. Then, push the incoming operator.
-					else {
-						while (hasLowerOrEqualPrec(token, (String)stack.peek())) {
-							stack.pop();
-						}
-						stack.push(token);
-					}
-				}
-				// If the incoming symbols is an operand, print it.
+				// If the incoming symbol is an operator and has either lower
+				//   precedence than the operator on the top of the stack, or
+				//   has the same precedence as the operator on the top of the
+				//   stack and is left associative -- continue to pop the stack
+				//   until this is not true. Then, push the incoming operator.
 				else {
-					out.append(token);
+					while (hasLowerOrEqualPrec(token, (String)stack.peek())) {
+						stack.pop();
+					}
+					stack.push(token);
 				}
 			}
+			// Funciones (SUM(), MIN(), MAX())
+			else if (token.equals("S")) {
 
-			// At the end of the expression, pop and print all operators on the
-			// stack. (No parentheses should remain.)
-			while (!stack.empty()) {
-				out.append(stack.pop());
+				stack.push(token);
+
+				// Posicionar al inicio del argumento de SUM para parsearlo
+				i = i + 4;
+				StringBuilder sumArg = new StringBuilder();
+				String sumArgToken = null;
+				while (!sumArgToken.equals(")")) {
+					sumArgToken = Character.toString(tokens[i]);
+					sumArg.append(sumArgToken);
+					i++;
+				}
+
+				// Agregar el argumento parseado a la salida y posicionar luego
+				// de la llamada a SUM para seguir parseando
+				out.append(toPostfix(sumArg.toString()));
+				i++;
 			}
+			else if (token.equals("M")) {
+
+				if (Character.toString(tokens[i+1]).equals("A")) {
+					stack.push("M"); // MAX
+				}
+				else {
+					stack.push("N"); // MIN
+				}
+
+				// Posicionar al inicio del primer argumento de MAX/MIN para
+				// parsearlo
+				i = i + 4;
+				StringBuilder arg1 = new StringBuilder();
+				String arg1Token = null;
+				while (!arg1Token.equals(",")) {
+					arg1Token = Character.toString(tokens[i]);
+					arg1.append(arg1Token);
+					i++;
+				}
+				
+				// Agregar el argumento parseado a la salida
+				out.append(toPostfix(arg1.toString()));
+
+				// Posicionar al inicio del segundo argumento de MAX/MIN para
+				// parsearlo
+				i++;
+				StringBuilder arg2 = new StringBuilder();
+				String arg2Token = null;
+				while (!arg2Token.equals(")")) {
+					arg2Token = Character.toString(tokens[i]);
+					arg2.append(arg2Token);
+					i++;
+				}
+				
+				// Agregar el argumento parseado a la salida y posicionar luego
+				// de la llamada a MAX/MIN para seguir parseando
+				out.append(toPostfix(arg1.toString()));
+				i++;
+			}
+			// Operandos enteros
+			else {
+				out.append(token);
+			}
+		}
+
+		// Agregar los operadores que quedan en la pila a la salida
+		while (!stack.empty()) {
+			out.append(stack.pop());
 		}
 
 		return out.toString();
