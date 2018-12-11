@@ -5,8 +5,24 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.charset.Charset;
 import java.io.IOException;
+import java.lang.Character;
+import java.util.Stack;
+import java.lang.StringBuilder;
+import java.lang.Integer;
 
 public class Evaluador {
+
+	/**
+	 * Lista de operadores donde:<br>
+	 * +: representa adición<br>
+	 * -: representa substracción<br>
+	 * *: representa multiplicación<br>
+	 * /: representa división<br>
+	 * S: representa SUM()<br>
+	 * M: representa MAX()<br>
+	 * N: representa MIN()
+	 */
+	private final String operators = "+-*/SMN";
 
 	/**
 	 * MIN
@@ -90,12 +106,57 @@ public class Evaluador {
 	 * Evalua una expresión en notación polaca reversa.
 	 */
 	public static int eval(String reversedPolishExpr) {
-		return 0;
+		Stack  stack  = new Stack();
+		char[] tokens = reversedPolishExpr.toCharArray();
+		String token  = null;
+
+		for (int i = 0; i < reversedPolishExpr.length(); i++) {
+			token = Character.toString(tokens[i]);
+			stack.push(token);
+			if (stack.peek().equals("+")) {
+				stack.pop();
+				stack.push((int)stack.pop() + (int)stack.pop());
+			}
+			else if (stack.peek().equals("-")) {
+				stack.pop();
+				stack.push((int)stack.pop() - (int)stack.pop());
+			}
+			else if (stack.peek().equals("*")) {
+				stack.pop();
+				stack.push((int)stack.pop() * (int)stack.pop());
+			}
+			else if (stack.peek().equals("/")) {
+				stack.pop();
+				int divisor = (int)stack.pop();
+				stack.push((int)stack.pop() / divisor);
+			}
+			else if (stack.peek().equals("S")) {
+				stack.pop();
+				stack.push(Integer.toString(
+					sum((int)stack.pop()))
+				);
+			}
+			else if (stack.peek().equals("M")) {
+				stack.pop();
+				stack.push(Integer.toString(
+					max((int)stack.pop(), (int)stack.pop()))
+				);
+			}
+			else if (stack.peek().equals("N")) {
+				stack.pop();
+				stack.push(Integer.toString(
+					min((int)stack.pop(), (int)stack.pop()))
+				);
+			}
+		}
+
+		return (int)stack.pop();
 	}
 
 	/**
 	 * Construye un árbol de sintaxis abstracta a partir de una expresión en
-	 * notación polaca reversa.
+	 * notación polaca reversa. Nótese que este proceso equivale a "devolver"
+	 * el proceso de recorrido de un árbol binario en-orden (LNR).
 	 */
 	public static void buildExprGraphForTheLulz(String reversedPolishExpr) {
 
