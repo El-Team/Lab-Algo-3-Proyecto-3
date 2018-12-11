@@ -126,8 +126,8 @@ public class Evaluador {
 	public static void main(String[] args) {
 		if (args.length != 1) {
 			System.out.println(
-				"Debe proporcionar únicamente el nombre del archivo de entrada"+
-				" como argumento"
+				"Debe proporcionar únicamente el nombre del archivo de " +
+				"entrada como argumento"
 			);
 			System.exit(0);
 		}
