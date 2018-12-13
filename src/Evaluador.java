@@ -196,7 +196,10 @@ public class Evaluador {
 				counters.put("vCounter", counters.get("vCounter") + 1);
 			}
 			else {
-				operationArgs.add((String)stack.pop());
+				operationArgs.add(
+					i,
+					(String)stack.pop()
+				);
 			}
 		}
 
