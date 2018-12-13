@@ -156,27 +156,31 @@ public class Evaluador {
 	}
 
 	/**
-	 * Construye un árbol de sintaxis abstracta para una suma y lo agrega al
-	 * grafo que se pasa como argumento.
+	 * Construye un árbol de sintaxis abstracta para una operación binaria y lo
+	 * agrega al grafo que se pasa como argumento.
+	 * <br><br>
+	 * Notas:<br>
+	 * 1. El arreglo se recorre en reversa porque al desempilar, los operandos
+	 * se obtienen en orden inverso.
 	 */
-	private static void addAdditionSubtreeTo(
+	private static void addBinaryOperationSubtreeTo(
 		GrafoNoDirigido graph,
 		HashMap<String, Integer> counters,
 		Stack stack
 	) {
-		String sumId = "v" + Integer.toString(counters.get("vCounter"));
-		ArrayList<String> sumArgs = new ArrayList();
+		String operationId = "v" + Integer.toString(counters.get("vCounter"));
+		ArrayList<String> operationArgs = new ArrayList(2);
 
-		// Nodo padre "+"
+		// Nodo padre (el operador)
 		graph.agregarVertice(
 			graph,
-			sumId,
+			operationId,
 			(String)stack.pop(),
 			0
 		);
 		counters.put("vCounter", counters.get("vCounter") + 1);
 		
-		// Nodos hijos (sumandos)
+		// Nodos hijos (los operandos)
 		for (int i = 0; i < 2; i++) {
 			if (!((String)stack.peek()).startsWith("v")) {
 				graph.agregarVertice(
@@ -185,31 +189,32 @@ public class Evaluador {
 					(String)stack.pop(),
 					0
 				);
-				sumArgs.add(
+				operationArgs.add(
+					i,
 					"v" + Integer.toString(counters.get("vCounter"))
 				);
 				counters.put("vCounter", counters.get("vCounter") + 1);
 			}
 			else {
-				sumArgs.add((String)stack.pop());
+				operationArgs.add((String)stack.pop());
 			}
 		}
 
 		// Aristas
-		for (int j = 0; j < 2; j++) {
+		for (int j = 2; j > 0; j--) { // Nota 1
 			graph.agregarArista(
 				graph,
 				"e" + Integer.toString(counters.get("eCounter")),
 				"",
 				0,
-				sumId,
-				sumArgs.get(j)
+				operationId,
+				operationArgs.get(j)
 			);
 			counters.put("eCounter", counters.get("eCounter") + 1);
 		}
 
 		// Actualizar pila
-		stack.push(sumId);
+		stack.push(operationId);
 	}
 
 	/**
@@ -231,38 +236,20 @@ public class Evaluador {
 		for (int i = 0; i < reversedPolishExpr.length(); i++) {
 			token = Character.toString(tokens[i]);
 			stack.push(token);
-			if (stack.peek().equals("+")) {
-				addAdditionSubtreeTo(graph, counters, stack);
-			}
-			else if (stack.peek().equals("-")) {
-				stack.pop();
-				stack.push((int)stack.pop() - (int)stack.pop());
-			}
-			else if (stack.peek().equals("*")) {
-				stack.pop();
-				stack.push((int)stack.pop() * (int)stack.pop());
-			}
-			else if (stack.peek().equals("/")) {
-				stack.pop();
-				int divisor = (int)stack.pop();
-				stack.push((int)stack.pop() / divisor);
+			if (
+				stack.peek().equals("+") ||
+				stack.peek().equals("-") ||
+				stack.peek().equals("*") ||
+				stack.peek().equals("/") ||
+				stack.peek().equals("M") ||
+				stack.peek().equals("N")
+			) {
+				addBinaryOperationSubtreeTo(graph, counters, stack);
 			}
 			else if (stack.peek().equals("S")) {
 				stack.pop();
 				stack.push(Integer.toString(
 					sum((int)stack.pop()))
-				);
-			}
-			else if (stack.peek().equals("M")) {
-				stack.pop();
-				stack.push(Integer.toString(
-					max((int)stack.pop(), (int)stack.pop()))
-				);
-			}
-			else if (stack.peek().equals("N")) {
-				stack.pop();
-				stack.push(Integer.toString(
-					min((int)stack.pop(), (int)stack.pop()))
 				);
 			}
 		}
