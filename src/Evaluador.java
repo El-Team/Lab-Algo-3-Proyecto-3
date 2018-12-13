@@ -119,7 +119,7 @@ public class Evaluador {
 			}
 			else if (stack.peek().equals("-")) {
 				stack.pop();
-				stack.push((int)stack.pop() - (int)stack.pop());
+				stack.push(-1*(int)stack.pop() + (int)stack.pop());
 			}
 			else if (stack.peek().equals("*")) {
 				stack.pop();
