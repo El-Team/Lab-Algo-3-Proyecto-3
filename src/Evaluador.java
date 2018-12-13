@@ -9,6 +9,8 @@ import java.lang.Character;
 import java.util.Stack;
 import java.lang.StringBuilder;
 import java.lang.Integer;
+import java.util.ArrayList;
+import java.util.HashMap;
 
 public class Evaluador {
 
@@ -154,11 +156,116 @@ public class Evaluador {
 	}
 
 	/**
+	 * Construye un árbol de sintaxis abstracta para una suma y lo agrega al
+	 * grafo que se pasa como argumento.
+	 */
+	private static void addAdditionSubtreeTo(
+		GrafoNoDirigido graph,
+		HashMap<String, Integer> counters,
+		Stack stack
+	) {
+		String sumId = "v" + Integer.toString(counters.get("vCounter"));
+		ArrayList<String> sumArgs = new ArrayList();
+
+		// Nodo padre "+"
+		graph.agregarVertice(
+			graph,
+			sumId,
+			(String)stack.pop(),
+			0
+		);
+		counters.put("vCounter", counters.get("vCounter") + 1);
+		
+		// Nodos hijos (sumandos)
+		for (int i = 0; i < 2; i++) {
+			if (!((String)stack.peek()).startsWith("v")) {
+				graph.agregarVertice(
+					graph,
+					"v" + Integer.toString(counters.get("vCounter")),
+					(String)stack.pop(),
+					0
+				);
+				sumArgs.add(
+					"v" + Integer.toString(counters.get("vCounter"))
+				);
+				counters.put("vCounter", counters.get("vCounter") + 1);
+			}
+			else {
+				sumArgs.add((String)stack.pop());
+			}
+		}
+
+		// Aristas
+		for (int j = 0; j < 2; j++) {
+			graph.agregarArista(
+				graph,
+				"e" + Integer.toString(counters.get("eCounter")),
+				"",
+				0,
+				sumId,
+				sumArgs.get(j)
+			);
+			counters.put("eCounter", counters.get("eCounter") + 1);
+		}
+
+		// Actualizar pila
+		stack.push(sumId);
+	}
+
+	/**
 	 * Construye un árbol de sintaxis abstracta a partir de una expresión en
-	 * notación polaca reversa. Nótese que este proceso equivale a "devolver"
-	 * el proceso de recorrido de un árbol binario en-orden (LNR).
+	 * notación polaca reversa.
 	 */
 	public static void buildExprGraphForTheLulz(String reversedPolishExpr) {
+		GrafoNoDirigido graph = new GrafoNoDirigido();
+		Stack stack  = new Stack();
+		char[] tokens = reversedPolishExpr.toCharArray();
+		String token = null;
+		HashMap<String, Integer> counters = new HashMap<String, Integer>() {
+			{
+				put("vCounter", 0);
+				put("eCounter", 0);
+			}
+		};
+
+		for (int i = 0; i < reversedPolishExpr.length(); i++) {
+			token = Character.toString(tokens[i]);
+			stack.push(token);
+			if (stack.peek().equals("+")) {
+				addAdditionSubtreeTo(graph, counters, stack);
+			}
+			else if (stack.peek().equals("-")) {
+				stack.pop();
+				stack.push((int)stack.pop() - (int)stack.pop());
+			}
+			else if (stack.peek().equals("*")) {
+				stack.pop();
+				stack.push((int)stack.pop() * (int)stack.pop());
+			}
+			else if (stack.peek().equals("/")) {
+				stack.pop();
+				int divisor = (int)stack.pop();
+				stack.push((int)stack.pop() / divisor);
+			}
+			else if (stack.peek().equals("S")) {
+				stack.pop();
+				stack.push(Integer.toString(
+					sum((int)stack.pop()))
+				);
+			}
+			else if (stack.peek().equals("M")) {
+				stack.pop();
+				stack.push(Integer.toString(
+					max((int)stack.pop(), (int)stack.pop()))
+				);
+			}
+			else if (stack.peek().equals("N")) {
+				stack.pop();
+				stack.push(Integer.toString(
+					min((int)stack.pop(), (int)stack.pop()))
+				);
+			}
+		}
 
 	}
 
