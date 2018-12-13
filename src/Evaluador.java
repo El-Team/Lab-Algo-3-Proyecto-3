@@ -221,6 +221,61 @@ public class Evaluador {
 	}
 
 	/**
+	 * Construye un árbol de sintaxis abstracta para una operación unaria y lo
+	 * agrega al grafo que se pasa como argumento.
+	 * <br><br>
+	 * Notas:<br>
+	 * 1. El arreglo se recorre en reversa porque al desempilar, los operandos
+	 * se obtienen en orden inverso.
+	 */
+	private static void addUnaryOperationSubtreeTo(
+		GrafoNoDirigido graph,
+		HashMap<String, Integer> counters,
+		Stack stack
+	) {
+		String operationId = "v" + Integer.toString(counters.get("vCounter"));
+		String operationArg = null;
+
+		// Nodo padre (el operador)
+		graph.agregarVertice(
+			graph,
+			operationId,
+			(String)stack.pop(),
+			0
+		);
+		counters.put("vCounter", counters.get("vCounter") + 1);
+		
+		// Nodo hijo (el operando)
+		if (!((String)stack.peek()).startsWith("v")) {
+			graph.agregarVertice(
+				graph,
+				"v" + Integer.toString(counters.get("vCounter")),
+				(String)stack.pop(),
+				0
+			);
+			operationArg = "v" + Integer.toString(counters.get("vCounter"));
+			counters.put("vCounter", counters.get("vCounter") + 1);
+		}
+		else {
+			operationArg = (String)stack.pop();
+		}
+
+		// Aristas
+		graph.agregarArista(
+			graph,
+			"e" + Integer.toString(counters.get("eCounter")),
+			"",
+			0,
+			operationId,
+			operationArg
+		);
+		counters.put("eCounter", counters.get("eCounter") + 1);
+
+		// Actualizar pila
+		stack.push(operationId);
+	}
+
+	/**
 	 * Construye un árbol de sintaxis abstracta a partir de una expresión en
 	 * notación polaca reversa.
 	 */
@@ -250,10 +305,7 @@ public class Evaluador {
 				addBinaryOperationSubtreeTo(graph, counters, stack);
 			}
 			else if (stack.peek().equals("S")) {
-				stack.pop();
-				stack.push(Integer.toString(
-					sum((int)stack.pop()))
-				);
+				addUnaryOperationSubtreeTo(graph, counters, stack);
 			}
 		}
 
