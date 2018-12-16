@@ -97,8 +97,14 @@ public class ShuntingYard {
 				//   stack and is left associative -- continue to pop the stack
 				//   until this is not true. Then, push the incoming operator.
 				else {
-					while (hasLowerOrEqualPrec(token, (String)stack.peek())) {
-						stack.pop();
+					while (
+						hasLowerOrEqualPrec(token, (String)stack.peek())
+					) {
+						out.append(stack.pop());
+						out.append(" ");
+						if (stack.empty()) {
+							break;
+						}
 					}
 					stack.push(token);
 				}
@@ -164,13 +170,25 @@ public class ShuntingYard {
 			}
 			// Operandos enteros
 			else {
-				out.append(token);
+
+				StringBuilder operand = new StringBuilder(token);
+				while (
+					i + 1 < expr.length() &&
+					!operators.containsKey(Character.toString(tokens[i+1]))
+				) {
+					operand.append(tokens[i+1]);
+					i++;
+				}
+
+				out.append(operand);
+				out.append(" ");
 			}
 		}
 
 		// Agregar los operadores que quedan en la pila a la salida
 		while (!stack.empty()) {
 			out.append(stack.pop());
+			out.append(" ");
 		}
 
 		return out.toString();

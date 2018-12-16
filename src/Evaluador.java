@@ -11,6 +11,8 @@ import java.lang.StringBuilder;
 import java.lang.Integer;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.lang.ClassCastException;
+import java.lang.StringBuilder;
 
 public class Evaluador {
 
@@ -24,7 +26,7 @@ public class Evaluador {
 	 * M: representa MAX()<br>
 	 * N: representa MIN()
 	 */
-	private final String operators = "+-*/SMN";
+	private static final String operators = "+-*/SMN";
 
 	/**
 	 * MIN
@@ -105,54 +107,133 @@ public class Evaluador {
 	}
 
 	/**
+	 * Ejecuta una operación binaria "op", usando como argumentos las últimas
+	 * dos entradas numéricas en "stack" y luego almacena el resultado en la
+	 * misma pila.
+	 */
+	private static void evaluateBinaryOperation(String op, Stack stack) {
+
+		stack.pop();
+		Integer arg2 = null;
+		Integer arg1 = null;
+		
+		try {
+			arg2 = Integer.parseInt((String)stack.peek());
+		}
+		catch (ClassCastException e) {
+			arg2 = (int)stack.peek();
+		}
+		stack.pop();
+
+		try {
+			arg1 = Integer.parseInt((String)stack.peek());
+		}
+		catch (ClassCastException e) {
+			arg1 = (int)stack.peek();
+		}
+		stack.pop();
+
+		switch (op) {
+			case "+": 
+				stack.push(arg1 + arg2);
+				break;
+			case "-": 
+				stack.push(arg1 - arg2);
+				break;
+			case "*": 
+				stack.push(arg1 * arg2);
+				break;
+			case "/": 
+				stack.push(arg1 / arg2);
+				break;
+		}
+	}
+
+
+	/**
 	 * Evalua una expresión en notación polaca reversa.
 	 */
 	public static int eval(String reversedPolishExpr) {
-		Stack  stack  = new Stack();
+
+		Integer result = null;
+		Stack<String>  stack  = new Stack<String>();
 		char[] tokens = reversedPolishExpr.toCharArray();
 		String token  = null;
 
+		System.out.println("----------------------------------");
+		System.out.println(reversedPolishExpr);
+		System.out.println("----------------------------------");
+
 		for (int i = 0; i < reversedPolishExpr.length(); i++) {
+
 			token = Character.toString(tokens[i]);
-			stack.push(token);
-			if (stack.peek().equals("+")) {
-				stack.pop();
-				stack.push((int)stack.pop() + (int)stack.pop());
-			}
-			else if (stack.peek().equals("-")) {
-				stack.pop();
-				stack.push(-1*(int)stack.pop() + (int)stack.pop());
-			}
-			else if (stack.peek().equals("*")) {
-				stack.pop();
-				stack.push((int)stack.pop() * (int)stack.pop());
-			}
-			else if (stack.peek().equals("/")) {
-				stack.pop();
-				int divisor = (int)stack.pop();
-				stack.push((int)stack.pop() / divisor);
-			}
-			else if (stack.peek().equals("S")) {
-				stack.pop();
-				stack.push(Integer.toString(
-					sum((int)stack.pop()))
-				);
-			}
-			else if (stack.peek().equals("M")) {
-				stack.pop();
-				stack.push(Integer.toString(
-					max((int)stack.pop(), (int)stack.pop()))
-				);
-			}
-			else if (stack.peek().equals("N")) {
-				stack.pop();
-				stack.push(Integer.toString(
-					min((int)stack.pop(), (int)stack.pop()))
-				);
+
+			if (!token.equals(" ")) {
+
+				if (operators.indexOf(token) != -1) {
+
+					stack.push(token);
+					String op = (String)stack.peek();
+
+					switch (op) {
+						case "+":
+							evaluateBinaryOperation(op, stack);
+							break;
+						case "-":
+							evaluateBinaryOperation(op, stack);
+							break;
+						case "*":
+							evaluateBinaryOperation(op, stack);
+							break;
+						case "/":
+							evaluateBinaryOperation(op, stack);
+							break;
+						case "S":
+							stack.pop();
+							//stack.push(Integer.toString(
+							//	sum((int)stack.pop()))
+							//);
+							break;
+						case "M":
+							stack.pop();
+							//stack.push(Integer.toString(
+							//	max((int)stack.pop(), (int)stack.pop()))
+							//);
+							break;
+						case "N":
+							stack.pop();
+							//stack.push(Integer.toString(
+							//	min((int)stack.pop(), (int)stack.pop()))
+							//);
+							break;
+					}
+				}
+				else {
+
+					StringBuilder operand = new StringBuilder(token);
+					while (
+						i + 1 < reversedPolishExpr.length() &&
+						operators.indexOf(reversedPolishExpr.substring(i+1, i+2)) == -1 &&
+						!reversedPolishExpr.substring(i+1, i+2).equals(" ")
+					) {
+						operand.append(Character.toString(tokens[i+1]));
+						i++;
+					}
+
+					stack.push(operand.toString());
+				}		
 			}
 		}
 
-		return (int)stack.pop();
+		try {
+			result = Integer.parseInt((String)stack.peek());
+		}
+		catch (ClassCastException e) {
+			Object o = stack.peek();
+			result = (int)o;
+		}
+
+		return result;
 	}
 
 	/**
@@ -223,10 +304,6 @@ public class Evaluador {
 	/**
 	 * Construye un árbol de sintaxis abstracta para una operación unaria y lo
 	 * agrega al grafo que se pasa como argumento.
-	 * <br><br>
-	 * Notas:<br>
-	 * 1. El arreglo se recorre en reversa porque al desempilar, los operandos
-	 * se obtienen en orden inverso.
 	 */
 	private static void addUnaryOperationSubtreeTo(
 		GrafoNoDirigido graph,
@@ -308,7 +385,6 @@ public class Evaluador {
 				addUnaryOperationSubtreeTo(graph, counters, stack);
 			}
 		}
-
 	}
 
 	/**
@@ -327,9 +403,10 @@ public class Evaluador {
 		int result;
 		for (String expr : expressions) {
 			String reversedPolishExpr = convertToReversedPolish(expr);
+			System.out.println("Expression: " + reversedPolishExpr);
 			result = eval(reversedPolishExpr);
-			buildExprGraphForTheLulz(reversedPolishExpr);
-			System.out.print(result);
+			//buildExprGraphForTheLulz(reversedPolishExpr);
+			System.out.print("Result: " + result);
 		}
 	}
 
