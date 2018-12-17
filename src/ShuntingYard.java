@@ -15,6 +15,16 @@ public class ShuntingYard {
 		}
 	}
 
+	private static HashMap<String, Operator> simpleOperators =
+		new HashMap<String, Operator>() {
+			{
+				put("+", Operator.ADD);
+				put("-", Operator.SUBTRACT);
+				put("*", Operator.MULTIPLY);
+				put("/", Operator.DIVIDE);
+			}
+		};
+
 	private static HashMap<String, Operator> operators =
 		new HashMap<String, Operator>() {
 			{
@@ -77,7 +87,7 @@ public class ShuntingYard {
 				stack.pop();
 			}
 			// Algún operador simple (+, -, *, /)
-			else if (operators.containsKey(token)) {
+			else if (simpleOperators.containsKey(token)) {
 				// If the incoming symbol is an operator and the stack is empty
 				//   or contains a left parenthesis on top, push the incoming
 				//   operator onto the stack.
@@ -142,7 +152,7 @@ public class ShuntingYard {
 				// parsearlo
 				i = i + 4;
 				StringBuilder arg1 = new StringBuilder();
-				String arg1Token = null;
+				String arg1Token = Character.toString(tokens[i]);
 				while (!arg1Token.equals(",")) {
 					arg1Token = Character.toString(tokens[i]);
 					arg1.append(arg1Token);
@@ -150,13 +160,15 @@ public class ShuntingYard {
 				}
 				
 				// Agregar el argumento parseado a la salida
-				out.append(toPostfix(arg1.toString()));
+				out.append(toPostfix(arg1.toString().substring(
+					0, arg1.toString().length()-1
+				)));
 
 				// Posicionar al inicio del segundo argumento de MAX/MIN para
 				// parsearlo
-				i++;
 				StringBuilder arg2 = new StringBuilder();
-				String arg2Token = null;
+				String arg2Token = Character.toString(tokens[i]);
+
 				while (!arg2Token.equals(")")) {
 					arg2Token = Character.toString(tokens[i]);
 					arg2.append(arg2Token);
@@ -165,12 +177,13 @@ public class ShuntingYard {
 				
 				// Agregar el argumento parseado a la salida y posicionar luego
 				// de la llamada a MAX/MIN para seguir parseando
-				out.append(toPostfix(arg1.toString()));
+				out.append(toPostfix(arg2.toString().substring(
+					0, arg2.toString().length()-1
+				)));
 				i++;
 			}
 			// Operandos enteros
 			else {
-
 				StringBuilder operand = new StringBuilder(token);
 				while (
 					i + 1 < expr.length() &&
