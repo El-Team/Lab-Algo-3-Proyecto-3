@@ -146,6 +146,12 @@ public class Evaluador {
 			case "/": 
 				stack.push(arg1 / arg2);
 				break;
+			case "M": 
+				stack.push(max(arg1, arg2));
+				break;
+			case "N": 
+				stack.push(min(arg1, arg2));
+				break;
 		}
 	}
 
@@ -195,16 +201,10 @@ public class Evaluador {
 							//);
 							break;
 						case "M":
-							stack.pop();
-							//stack.push(Integer.toString(
-							//	max((int)stack.pop(), (int)stack.pop()))
-							//);
+							evaluateBinaryOperation(op, stack);
 							break;
 						case "N":
-							stack.pop();
-							//stack.push(Integer.toString(
-							//	min((int)stack.pop(), (int)stack.pop()))
-							//);
+							evaluateBinaryOperation(op, stack);
 							break;
 					}
 				}
@@ -406,7 +406,7 @@ public class Evaluador {
 			System.out.println("Expression: " + reversedPolishExpr);
 			result = eval(reversedPolishExpr);
 			//buildExprGraphForTheLulz(reversedPolishExpr);
-			System.out.print("Result: " + result);
+			System.out.print("Result: " + result + "\n");
 		}
 	}
 

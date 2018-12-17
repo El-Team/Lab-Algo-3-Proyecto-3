@@ -66,6 +66,8 @@ public class ShuntingYard {
 	 */
 	public static String toPostfix(String expr) {
 
+		System.out.println(expr);
+
 		StringBuilder out = new StringBuilder();
 		Stack stack = new Stack();
 		char[] tokens = expr.toCharArray();
@@ -127,16 +129,19 @@ public class ShuntingYard {
 				// Posicionar al inicio del argumento de SUM para parsearlo
 				i = i + 4;
 				StringBuilder sumArg = new StringBuilder();
-				String sumArgToken = null;
-				while (!sumArgToken.equals(")")) {
+				String sumArgToken = Character.toString(tokens[i]);
+				while (i < expr.length() && !sumArgToken.equals(")")) {
 					sumArgToken = Character.toString(tokens[i]);
+					System.out.println(sumArgToken);
 					sumArg.append(sumArgToken);
 					i++;
 				}
 
 				// Agregar el argumento parseado a la salida y posicionar luego
 				// de la llamada a SUM para seguir parseando
-				out.append(toPostfix(sumArg.toString()));
+				out.append(toPostfix(sumArg.toString().substring(
+					0, sumArg.toString().length()-1
+				)));
 				i++;
 			}
 			else if (token.equals("M")) {
@@ -164,11 +169,9 @@ public class ShuntingYard {
 					0, arg1.toString().length()-1
 				)));
 
-				// Posicionar al inicio del segundo argumento de MAX/MIN para
-				// parsearlo
+				// Parsear el segundo argumento de MAX/MIN
 				StringBuilder arg2 = new StringBuilder();
 				String arg2Token = Character.toString(tokens[i]);
-
 				while (!arg2Token.equals(")")) {
 					arg2Token = Character.toString(tokens[i]);
 					arg2.append(arg2Token);
