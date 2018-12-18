@@ -66,8 +66,6 @@ public class ShuntingYard {
 	 */
 	public static String toPostfix(String expr) {
 
-		System.out.println(expr);
-
 		StringBuilder out = new StringBuilder();
 		Stack stack = new Stack();
 		char[] tokens = expr.toCharArray();
@@ -132,7 +130,6 @@ public class ShuntingYard {
 				String sumArgToken = Character.toString(tokens[i]);
 				while (i < expr.length() && !sumArgToken.equals(")")) {
 					sumArgToken = Character.toString(tokens[i]);
-					System.out.println("le token: " + sumArgToken);
 					sumArg.append(sumArgToken);
 					i++;
 				}
@@ -144,7 +141,6 @@ public class ShuntingYard {
 				) {
 					sumArg.append(")");
 				}
-
 
 				// Agregar el argumento parseado a la salida y posicionar luego
 				// de la llamada a SUM para seguir parseando

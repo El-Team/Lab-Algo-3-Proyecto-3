@@ -190,10 +190,6 @@ public class Evaluador {
 		char[] tokens = reversedPolishExpr.toCharArray();
 		String token  = null;
 
-		System.out.println("----------------------------------");
-		System.out.println(reversedPolishExpr);
-		System.out.println("----------------------------------");
-
 		for (int i = 0; i < reversedPolishExpr.length(); i++) {
 
 			token = Character.toString(tokens[i]);
@@ -424,7 +420,6 @@ public class Evaluador {
 		int result;
 		for (String expr : expressions) {
 			String reversedPolishExpr = convertToReversedPolish(expr);
-			System.out.println("Expression: " + reversedPolishExpr);
 			result = eval(reversedPolishExpr);
 			//buildExprGraphForTheLulz(reversedPolishExpr);
 			System.out.print("Result: " + result + "\n");
