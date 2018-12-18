@@ -55,9 +55,7 @@ public class Evaluador {
 	public static int sum(int n) {
 		int result = 0;
 		if (n > 0) {
-			for (int i = 1; i < n; i++) {
-				result += i;
-			}
+			result = n * (n-1) / 2;
 		}
 		else if (n < 0) {
 			for (int i = -1; i > n; i--) {
@@ -422,7 +420,7 @@ public class Evaluador {
 			String reversedPolishExpr = convertToReversedPolish(expr);
 			result = eval(reversedPolishExpr);
 			//buildExprGraphForTheLulz(reversedPolishExpr);
-			System.out.print("Result: " + result + "\n");
+			System.out.print(result + "\n");
 		}
 	}
 
