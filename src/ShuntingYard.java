@@ -132,10 +132,19 @@ public class ShuntingYard {
 				String sumArgToken = Character.toString(tokens[i]);
 				while (i < expr.length() && !sumArgToken.equals(")")) {
 					sumArgToken = Character.toString(tokens[i]);
-					System.out.println(sumArgToken);
+					System.out.println("le token: " + sumArgToken);
 					sumArg.append(sumArgToken);
 					i++;
 				}
+
+				if (
+					!Character
+						.toString(sumArg.charAt(sumArg.length()-1))
+						.equals(")")
+				) {
+					sumArg.append(")");
+				}
+
 
 				// Agregar el argumento parseado a la salida y posicionar luego
 				// de la llamada a SUM para seguir parseando
