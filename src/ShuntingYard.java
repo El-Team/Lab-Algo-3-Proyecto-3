@@ -3,6 +3,9 @@ import java.lang.StringBuilder;
 import java.util.HashMap;
 import java.lang.Character;
 
+/**
+ * Clase asociada a la aplicación del algoritmo shunting-yard.
+ */
 public class ShuntingYard {
 	
 	private enum Operator {

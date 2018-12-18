@@ -1,0 +1,1 @@
+typeSearchIndex = [{"p":"<Unnamed>","l":"Arista"},{"p":"<Unnamed>","l":"Evaluador"},{"p":"<Unnamed>","l":"Grafo"},{"p":"<Unnamed>","l":"GrafoNoDirigido"},{"p":"<Unnamed>","l":"Lado"},{"p":"<Unnamed>","l":"ShuntingYard"},{"p":"<Unnamed>","l":"Utilidades"},{"p":"<Unnamed>","l":"Vertice"}]

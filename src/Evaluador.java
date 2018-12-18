@@ -1,3 +1,15 @@
+// =============================================================================
+// NOTA IMPORTANTE
+// =============================================================================
+// Para generar el HTML sin errarores usando JavaDoc, es necesario usar la
+// opción "encoding" de la siguiente manera:
+//
+// 		javadoc -encoding utf-8 *.java
+//
+// Sin embargo, se incluye una versión de la documentación que refleja los
+// últimos cambios en el directorio ../docs.
+// =============================================================================
+
 import java.lang.Math;
 import java.io.FileNotFoundException;
 import java.util.List;
@@ -14,6 +26,11 @@ import java.util.HashMap;
 import java.lang.ClassCastException;
 import java.lang.StringBuilder;
 
+/**
+ * Evalua expresiones matemáticas compuestas por las operaciones adición,
+ * substracción, multiplicación y división, además de las funciones SUM(), MAX()
+ * y MIN().
+ */
 public class Evaluador {
 
 	/**
@@ -370,6 +387,15 @@ public class Evaluador {
 	/**
 	 * Construye un árbol de sintaxis abstracta a partir de una expresión en
 	 * notación polaca reversa.
+	 * <br><br>
+	 * Para el proceso de construcción del grafo se usó la estrategia de dividir
+	 * y conquistar: cada vez que se encuentra un operador en la expresión, se
+	 * agregan los vértices y aristas asociados a esa instancia particular de la
+	 * operación y se repite este proceso hasta llegar al final de la expresión.
+	 * <br><br>
+	 * Nótese que para los efectos de evaluar la expresión introducida basta con
+	 * usar la notación polaca reversa, sin emabargo, se decidió crear el grafo
+	 * de precedencia para cumplir con los requerimientos.
 	 */
 	public static void buildExprGraphForTheLulz(String reversedPolishExpr) {
 		GrafoNoDirigido graph = new GrafoNoDirigido();
@@ -400,6 +426,8 @@ public class Evaluador {
 				addUnaryOperationSubtreeTo(graph, counters, stack);
 			}
 		}
+
+		graph.toString();
 	}
 
 	/**
@@ -419,7 +447,7 @@ public class Evaluador {
 		for (String expr : expressions) {
 			String reversedPolishExpr = convertToReversedPolish(expr);
 			result = eval(reversedPolishExpr);
-			//buildExprGraphForTheLulz(reversedPolishExpr);
+			// buildExprGraphForTheLulz(reversedPolishExpr);
 			System.out.print(result + "\n");
 		}
 	}

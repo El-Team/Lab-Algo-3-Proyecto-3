@@ -14,8 +14,8 @@ public class Arista extends Lado {
 	* 		@param id 	representa el identificador
 	* 		@param dato representa el dato a almacenar
 	* 		@param p 	representa el peso del {@link Arista}
-	* 		@param vi 	{@link Vertice} extremo 1
-	* 		@param vf 	{@link Vertice} extremo 2
+	* 		@param u 	{@link Vertice} extremo 1
+	* 		@param v 	{@link Vertice} extremo 2
 	*/
 	public Arista(String id, String dato, int p, Vertice u, Vertice v) {
 		super(id, dato, p);
