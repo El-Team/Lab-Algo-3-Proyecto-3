@@ -155,6 +155,30 @@ public class Evaluador {
 		}
 	}
 
+	/**
+	 * Ejecuta una operación unaria "op", usando como argumentos la última
+	 * entradas numérica en "stack" y luego almacena el resultado en la misma
+	 * pila.
+	 */
+	private static void evaluateUnaryOperation(String op, Stack stack) {
+
+		stack.pop();
+		Integer arg = null;
+
+		try {
+			arg = Integer.parseInt((String)stack.peek());
+		}
+		catch (ClassCastException e) {
+			arg = (int)stack.peek();
+		}
+		stack.pop();
+
+		switch (op) {
+			case "S":
+				stack.push(sum(arg));
+				break;
+		}
+	}
 
 	/**
 	 * Evalua una expresión en notación polaca reversa.
@@ -195,10 +219,7 @@ public class Evaluador {
 							evaluateBinaryOperation(op, stack);
 							break;
 						case "S":
-							stack.pop();
-							//stack.push(Integer.toString(
-							//	sum((int)stack.pop()))
-							//);
+							evaluateUnaryOperation(op, stack);
 							break;
 						case "M":
 							evaluateBinaryOperation(op, stack);
